@@ -44,7 +44,7 @@ public class Controller {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        return ResponseEntity.ok(jwt);
+        return ResponseEntity.ok("{ \"auth-token\": " + "\"" + jwt + "\" }");
     }
 
 
