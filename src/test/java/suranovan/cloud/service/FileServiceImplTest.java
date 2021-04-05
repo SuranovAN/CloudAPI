@@ -19,7 +19,7 @@ import java.util.Arrays;
 public class
 FileServiceImplTest {
 
-    private final static String uploadPath = "c:/temp";
+    private final static String uploadPath = "c:/temp/";
 
     FileServiceImpl fileService = new FileServiceImpl(uploadPath);
 
@@ -57,7 +57,10 @@ FileServiceImplTest {
         String fileName = "123.txt";
         Path path = Paths.get(uploadPath + fileName);
         File testFile = new File(String.valueOf(path));
-        testFile.createNewFile();
+        if (!testFile.exists()) {
+            testFile.createNewFile();
+        }
+
         byte[] emptyData = new byte[0];
 
         FileInputStream fis = new FileInputStream(String.valueOf(path));
