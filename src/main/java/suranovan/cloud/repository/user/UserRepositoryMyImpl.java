@@ -41,6 +41,14 @@ public class UserRepositoryMyImpl implements CommandLineRunner {
                 .role("ROLE_USER")
                 .build();
         entityManager.persist(user);
+
+        var admin = UserEntity.builder()
+                .id(2L)
+                .login("admin")
+                .email("some@mail2")
+                .password(encoder.encode("qwe"))
+                .role("ROLE_ADMIN")
+                .build();
     }
 
     public UserEntity findDistinctByIdEquals(Long id) {
