@@ -19,7 +19,7 @@ import java.util.Arrays;
 public class
 FileServiceImplTest {
 
-    private final static String uploadPath = "c:/temp/";
+    private final static String uploadPath = System.getProperty("user.home") + File.separator;
 
     FileServiceImpl fileService = new FileServiceImpl(uploadPath);
 
@@ -42,6 +42,7 @@ FileServiceImplTest {
         //очистка папки от тестовых файлов
         File testDir = new File(uploadPath + userName);
         Arrays.stream(testDir.listFiles()).forEach(file -> file.delete());
+        testDir.delete();
     }
 
     @Test
