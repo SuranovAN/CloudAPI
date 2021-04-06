@@ -9,15 +9,21 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import suranovan.cloud.config.CustomUserDetailsService;
 import suranovan.cloud.config.jwt.JwtUtils;
 import suranovan.cloud.model.Request.LoginAndPassword;
+import suranovan.cloud.model.Roles;
+import suranovan.cloud.model.UserEntity;
 import suranovan.cloud.model.response.CloudFile;
+import suranovan.cloud.repository.role.IRoleRepository;
 import suranovan.cloud.service.FileServiceAdminImpl;
 import suranovan.cloud.service.FileServiceImpl;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.*;
 
 
@@ -30,6 +36,8 @@ public class Controller {
     final JwtUtils jwtUtils;
     final FileServiceImpl fileService;
     final FileServiceAdminImpl fileServiceAdmin;
+    @Autowired
+    IRoleRepository roleRepository;
 
     public Controller(AuthenticationManager authenticationManager, JwtUtils jwtUtils, FileServiceImpl fileService, FileServiceAdminImpl fileServiceAdmin) {
         this.authenticationManager = authenticationManager;
@@ -58,7 +66,14 @@ public class Controller {
     }
 
     @GetMapping(value = "/list", produces = "application/json")
-    public List<CloudFile> list(@RequestParam(value = "limit", defaultValue = "5") Integer limit) {
+    public List<CloudFile> list(@RequestParam(value = "limit", defaultValue = "5") Integer limit,
+                                Principal principal) {
+        var userAuthorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+//        if (principal.getName().equals("admin"))
+        if (userAuthorities.contains(roleRepository.findByIdEquals(2))) {
+            return fileServiceAdmin.listUsersFiles(10);
+        }
+
         return fileService.listUsersFiles(limit);
     }
 
@@ -83,11 +98,5 @@ public class Controller {
     @DeleteMapping("/file")
     public void deleteFile(@RequestParam("filename") String fileName) {
         fileService.deleteFile(fileName);
-    }
-
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<CloudFile> getAllFiles(){
-        return fileServiceAdmin.listUsersFiles(10);
     }
 }
