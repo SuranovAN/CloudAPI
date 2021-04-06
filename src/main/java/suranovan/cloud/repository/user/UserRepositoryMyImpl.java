@@ -49,6 +49,8 @@ public class UserRepositoryMyImpl implements CommandLineRunner {
                 .password(encoder.encode("qwe"))
                 .role("ROLE_ADMIN")
                 .build();
+        admin.addRole(IRoleRepository.findByIdEquals(2));
+        entityManager.persist(admin);
     }
 
     public UserEntity findDistinctByIdEquals(Long id) {

@@ -1,6 +1,7 @@
 package suranovan.cloud.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import suranovan.cloud.config.jwt.JwtUtils;
 import suranovan.cloud.model.Request.LoginAndPassword;
 import suranovan.cloud.model.response.CloudFile;
+import suranovan.cloud.service.FileServiceAdminImpl;
 import suranovan.cloud.service.FileServiceImpl;
 
 import java.io.IOException;
@@ -27,11 +29,13 @@ public class Controller {
     final AuthenticationManager authenticationManager;
     final JwtUtils jwtUtils;
     final FileServiceImpl fileService;
+    final FileServiceAdminImpl fileServiceAdmin;
 
-    public Controller(AuthenticationManager authenticationManager, JwtUtils jwtUtils, FileServiceImpl fileService) {
+    public Controller(AuthenticationManager authenticationManager, JwtUtils jwtUtils, FileServiceImpl fileService, FileServiceAdminImpl fileServiceAdmin) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.fileService = fileService;
+        this.fileServiceAdmin = fileServiceAdmin;
     }
 
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
@@ -79,5 +83,11 @@ public class Controller {
     @DeleteMapping("/file")
     public void deleteFile(@RequestParam("filename") String fileName) {
         fileService.deleteFile(fileName);
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<CloudFile> getAllFiles(){
+        return fileServiceAdmin.listUsersFiles(10);
     }
 }
