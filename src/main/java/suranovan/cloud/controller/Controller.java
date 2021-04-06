@@ -9,14 +9,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import suranovan.cloud.config.CustomUserDetailsService;
 import suranovan.cloud.config.jwt.JwtUtils;
 import suranovan.cloud.model.Request.LoginAndPassword;
-import suranovan.cloud.model.Roles;
-import suranovan.cloud.model.UserEntity;
 import suranovan.cloud.model.response.CloudFile;
 import suranovan.cloud.repository.role.IRoleRepository;
 import suranovan.cloud.service.FileServiceAdminImpl;
@@ -36,14 +32,14 @@ public class Controller {
     final JwtUtils jwtUtils;
     final FileServiceImpl fileService;
     final FileServiceAdminImpl fileServiceAdmin;
-    @Autowired
-    IRoleRepository roleRepository;
+    final IRoleRepository roleRepository;
 
-    public Controller(AuthenticationManager authenticationManager, JwtUtils jwtUtils, FileServiceImpl fileService, FileServiceAdminImpl fileServiceAdmin) {
+    public Controller(AuthenticationManager authenticationManager, JwtUtils jwtUtils, FileServiceImpl fileService, FileServiceAdminImpl fileServiceAdmin, IRoleRepository roleRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.fileService = fileService;
         this.fileServiceAdmin = fileServiceAdmin;
+        this.roleRepository = roleRepository;
     }
 
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
@@ -65,12 +61,16 @@ public class Controller {
 
     }
 
+    private boolean getRole() {
+        var usersRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        return usersRole.contains(roleRepository.findByIdEquals(2));
+    }
+
     @GetMapping(value = "/list", produces = "application/json")
     public List<CloudFile> list(@RequestParam(value = "limit", defaultValue = "5") Integer limit,
                                 Principal principal) {
         var userAuthorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-//        if (principal.getName().equals("admin"))
-        if (userAuthorities.contains(roleRepository.findByIdEquals(2))) {
+        if (getRole()) {
             return fileServiceAdmin.listUsersFiles(10);
         }
 
@@ -80,11 +80,19 @@ public class Controller {
     @PostMapping(value = "/file", consumes = "multipart/form-data")
     public void file(@RequestParam("filename") String fileName,
                      @RequestParam("file") MultipartFile file) throws IOException {
+        if (getRole()) {
+            fileServiceAdmin.addFileToCloud(fileName, file);
+        }
+
         fileService.addFileToCloud(fileName, file);
     }
 
     @GetMapping(value = "/file")
     public ResponseEntity<InputStreamResource> getFile(@RequestParam("filename") String fileName) throws IOException {
+        if (getRole()) {
+            fileServiceAdmin.getFileFromCloud(fileName);
+        }
+
         return fileService.getFileFromCloud(fileName);
     }
 
@@ -92,11 +100,19 @@ public class Controller {
     @PutMapping("/file")
     public void putFile(@RequestParam("filename") String fileName,
                         @RequestBody String newFileName) throws IOException {
+        if (getRole()) {
+            fileServiceAdmin.renameFile(fileName, newFileName);
+        }
+
         fileService.renameFile(fileName, newFileName);
     }
 
     @DeleteMapping("/file")
     public void deleteFile(@RequestParam("filename") String fileName) {
+        if (getRole()){
+            fileServiceAdmin.deleteFile(fileName);
+        }
+
         fileService.deleteFile(fileName);
     }
 }

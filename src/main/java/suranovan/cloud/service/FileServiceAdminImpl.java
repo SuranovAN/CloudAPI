@@ -9,12 +9,13 @@ import suranovan.cloud.model.response.CloudFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 @Service
-public class FileServiceAdminImpl implements IFileService{
+public class FileServiceAdminImpl implements IFileService {
 
     @Value("${cloud.upload.path}")
     private final String uploadPath;
@@ -56,7 +57,10 @@ public class FileServiceAdminImpl implements IFileService{
 
     @Override
     public void deleteFile(String fileName) {
-
+        var dir = fileName.split("-");
+        File filePath = new File(String.join(File.separator, dir)); //не будет работать без uploadPath //TODO
+        System.out.println(filePath.toString());
+        filePath.delete();
     }
 
     @Override
