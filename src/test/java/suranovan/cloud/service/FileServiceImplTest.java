@@ -79,6 +79,8 @@ FileServiceImplTest {
         Assertions.assertFalse(fileService.addFileToCloud(fileName, multipartFileEmpty));
         //Прошла ли загрузка файла
         Assertions.assertTrue(fileService.addFileToCloud(fileName, multipartFile));
+        fis.close();
+        testFile.delete();
     }
 
     @Test
