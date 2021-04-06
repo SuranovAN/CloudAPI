@@ -19,7 +19,8 @@ import java.util.Arrays;
 public class
 FileServiceImplTest {
 
-    private final static String uploadPath = System.getProperty("user.home") + File.separator;
+    private final static String[] path = {"src", "main", "resources"};
+    private final static String uploadPath = String.join(File.separator, path);
 
     FileServiceImpl fileService = new FileServiceImpl(uploadPath);
 

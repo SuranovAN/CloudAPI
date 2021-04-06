@@ -5,6 +5,10 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -94,5 +98,14 @@ public class FileServiceImpl implements IFileService {
 
     private String getFilePathFromJSON(String json) {
         return json.split("([^\\w.]+)")[2];
+    }
+
+    public List<CloudFile> adminAccess() {
+        Path adminPath = Path.of(uploadPath);
+        var arr = adminPath.toFile().listFiles();
+        List<CloudFile> listAllFiles = new ArrayList<>();
+        Arrays.stream(arr).forEach(dir -> Arrays.stream(dir.listFiles())
+                .forEach(file -> listAllFiles.add(new CloudFile(file.getName(), (int) file.length()))));
+        return listAllFiles;
     }
 }

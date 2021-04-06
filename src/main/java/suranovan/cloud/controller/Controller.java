@@ -3,6 +3,7 @@ package suranovan.cloud.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,7 +55,8 @@ public class Controller {
     }
 
     @GetMapping(value = "/list", produces = "application/json")
-    public List<CloudFile> list(@RequestParam(value = "limit", defaultValue = "5") Integer limit) {
+    public List<CloudFile> list(@RequestParam(value = "limit", defaultValue = "5") Integer limit, String admin) {
+        System.out.println(admin);
         return fileService.listUsersFiles(limit);
     }
 

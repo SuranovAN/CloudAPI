@@ -1,9 +1,11 @@
 package suranovan.cloud.repository.user;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import suranovan.cloud.model.Roles;
 import suranovan.cloud.model.UserEntity;
 import suranovan.cloud.repository.role.IRoleRepository;
 import suranovan.cloud.repository.role.RoleRepositoryImpl;
@@ -41,6 +43,16 @@ public class UserRepositoryMyImpl implements CommandLineRunner {
                 .role("ROLE_USER")
                 .build();
         entityManager.persist(user);
+
+        var admin = UserEntity.builder()
+                .id(2L)
+                .login("admin")
+                .email("some@mail2")
+                .password(encoder.encode("qwe"))
+                .role("ROLE_ADMIN")
+                .build();
+        admin.addRoles(List.of(IRoleRepository.findByIdEquals(2)));
+        entityManager.persist(admin);
     }
 
     public UserEntity findDistinctByIdEquals(Long id) {
