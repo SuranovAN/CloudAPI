@@ -58,8 +58,7 @@ public class FileServiceAdminImpl implements IFileService {
     @Override
     public void deleteFile(String fileName) {
         var dir = fileName.split("-");
-        File filePath = new File(String.join(File.separator, dir)); //не будет работать без uploadPath //TODO
-        System.out.println(filePath.toString());
+        File filePath = new File(uploadPath + File.separator + String.join(File.separator, dir));
         filePath.delete();
     }
 
@@ -67,6 +66,4 @@ public class FileServiceAdminImpl implements IFileService {
     public void renameFile(String fileName, String newFileName) throws IOException {
 
     }
-
-
 }
